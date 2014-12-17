@@ -26,12 +26,6 @@ void waitForTap() {
 void note(int freq, int fraction) {
   pinMode(LOUDSPEAKER_PIN, OUTPUT);
   
-  if(freq = NOTE_B0)  {
-    for (i = 0; i < freq / fraction   * 3; i++) {
-      delayMicroseconds(1000000 / freq);
-    }
-  }
-  
   int i;
   for (i = 0; i < freq / fraction   * 3; i++) {
     digitalWrite(LOUDSPEAKER_PIN, HIGH);
