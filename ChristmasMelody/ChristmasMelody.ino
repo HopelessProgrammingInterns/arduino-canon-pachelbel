@@ -1,13 +1,24 @@
-#include "silent_night.h"
+#include "pachelbel2.h"
 
 /* This melody is defined in the header above. */
 int const melody[] = MELODY;
+#ifdef DURATION
+int const duration[] = DURATION;
+#endif
 
 /********************************************************/
 /* 3.) Define a constant LOUDSPEAKER_PIN containing the 
    number of the digital pin you just connected the 
    "+" pin of your loudspeaker to.
  */
+#define LOUDSPEAKER_PIN 8
+
+// time to wait between playing notes
+#define NOTE_GAP 25
+// duration of one measure in ms
+#define MEASURE_DURATION 3000
+// set to non-zero value to start playing after the given measure offset
+#define CANON_MEASURE_OFFSET 0
 
 /********************************************************/
 
@@ -18,6 +29,10 @@ int const melody[] = MELODY;
    
    Call that function just before you call play(int, long).
  */
+void waitForTap() {
+ while (analogRead(0) <= 10)
+   ;
+}
 
 /********************************************************/
 
@@ -40,11 +55,24 @@ void play(int note, long duration) {
    */
 
   /********************************************************/
+  int times = 1000 / duration;
+
+  int i;
+  for (i = 0; i < note / times; i++) {
+    digitalWrite(LOUDSPEAKER_PIN, HIGH);
+    delayMicroseconds(1000000 / note / 2);
+    digitalWrite(LOUDSPEAKER_PIN, LOW);
+    delayMicroseconds(1000000 / note / 2);
+  }
+
+  delay (NOTE_GAP);
+
   pinMode(LOUDSPEAKER_PIN, INPUT);
 }
 
 /* the setup routine runs once when you press reset: */
 void setup() {
+Serial.begin(9600);
   pinMode(LOUDSPEAKER_PIN, INPUT);
 }
 
@@ -59,6 +87,26 @@ void loop() {
   */
 
   /********************************************************/
+  int i, d;
+
+  // initial offset to allow for easier syncing
+  delay(2000);
+
+  delay(MEASURE_DURATION * CANON_MEASURE_OFFSET);
+
+  Serial.println(d);
+
+  for (i = 0; melody[i]; i++) {
+#ifdef DURATION
+    d = MEASURE_DURATION / duration[i];
+    if (melody[i] == PAUSE)
+      delay(d);
+    else
+      play(melody[i], d);
+#else
+    play(melody[i], 125);
+#endif
+  }
  
-  delay(500);
+  delay(500000);
 }
