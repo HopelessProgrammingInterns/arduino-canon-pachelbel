@@ -1,4 +1,4 @@
-#include "pachelbel2.h"
+#include "pachelbel4.h"
 
 /* This melody is defined in the header above. */
 int const melody[] = MELODY;
@@ -56,56 +56,58 @@ void play(int note, long duration) {
 
   /********************************************************/
   int times = 1000 / duration;
+  int len = note / times;
 
   int i;
-  for (i = 0; i < note / times; i++) {
+  for (i = 0; i < (int) len; i++) {
     digitalWrite(LOUDSPEAKER_PIN, HIGH);
     delayMicroseconds(1000000 / note / 2);
     digitalWrite(LOUDSPEAKER_PIN, LOW);
     delayMicroseconds(1000000 / note / 2);
   }
 
-  delay (NOTE_GAP);
+  //tone(LOUDSPEAKER_PIN, note, duration);
+  //delayMicroseconds(duration * 1000);
 
+  //delay (NOTE_GAP);
+
+  pinMode(LOUDSPEAKER_PIN, INPUT);
+}
+
+void note(int freq, int fraction) {
+  pinMode(LOUDSPEAKER_PIN, OUTPUT);
+
+  int i;
+  for (i = 0; i < freq / fraction * 3; i++) {
+    digitalWrite(LOUDSPEAKER_PIN, HIGH);
+    delayMicroseconds(1000000 / freq / 2);
+    digitalWrite(LOUDSPEAKER_PIN, LOW);
+    delayMicroseconds(1000000 / freq / 2);
+  }
+  
   pinMode(LOUDSPEAKER_PIN, INPUT);
 }
 
 /* the setup routine runs once when you press reset: */
 void setup() {
-Serial.begin(9600);
+  // Serial.begin(9600);
   pinMode(LOUDSPEAKER_PIN, INPUT);
 }
 
 /* the loop routine runs over and over again forever: */
 void loop() {
-  /********************************************************/
-  /* 4.) Look at the included melody.
-     How can you determine how long it is?
-     
-     Call play(int, long) with each note in the melody.
-     Play each note for 125ms.
-  */
-
-  /********************************************************/
   int i, d;
 
-  // initial offset to allow for easier syncing
-  delay(2000);
-
-  delay(MEASURE_DURATION * CANON_MEASURE_OFFSET);
-
-  Serial.println(d);
+  //tone(LOUDSPEAKER_PIN, NOTE_A1, 2000);
+  //delay(2000);
 
   for (i = 0; melody[i]; i++) {
-#ifdef DURATION
     d = MEASURE_DURATION / duration[i];
-    if (melody[i] == PAUSE)
+    if (melody[i] == PAUSE) {
+      //play(NOTE_A6, 500);
       delay(d);
-    else
-      play(melody[i], d);
-#else
-    play(melody[i], 125);
-#endif
+    } else
+      note(melody[i], duration[i]);
   }
  
   delay(500000);
