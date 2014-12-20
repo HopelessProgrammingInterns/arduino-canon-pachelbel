@@ -27,7 +27,8 @@
 /* ---- END CONFIGURATION SECTION ---- */
 
 /* ------------- INCLUDES ------------ */
-#include "digitalWriteFast.h"
+#define DIGITALIO_MANUAL // don't overwrite arduino digital* functions
+#include "digitalIOPerformance.h"
 #include "TimerOne.h"
 /* ----------- END INCLUDES ---------- */
 
@@ -53,9 +54,9 @@
 // tick: the tick counter, used to display the metronome
 #define NEXT_TICK(prev, tick) \
   do { \
-    while (digitalReadFast(SLAVE_PIN) == prev); \
+    while (digitalReadSafe(SLAVE_PIN) == prev); \
     HIGH_LOW_FLIP(prev); \
-    digitalWriteFast(LED_PIN, tick++ % FLIP_DURATION(METRONOME) < FLIP_DURATION(METRONOME_LENGTH)); \
+    digitalWriteSafe(LED_PIN, tick++ % FLIP_DURATION(METRONOME) < FLIP_DURATION(METRONOME_LENGTH)); \
   } while (0)
 
 // Flip a value from HIGH to LOW and vice versa
@@ -83,7 +84,7 @@ int const melody[] = MELODY;
 uint8_t next_tick = HIGH;
 
 void send_tick() {
-  digitalWriteFast(MASTER_PIN, next_tick);
+  digitalWriteSafe(MASTER_PIN, next_tick);
   HIGH_LOW_FLIP(next_tick);
 }
 #endif
