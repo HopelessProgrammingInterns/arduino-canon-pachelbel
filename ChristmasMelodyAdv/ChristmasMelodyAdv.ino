@@ -24,10 +24,14 @@
 #define METRONOME 1
 // How long the metronome should be active (duration)
 #define METRONOME_LENGTH 32
+
+// Which byte of the eeprom to use for the reset count
+#define EEPROM_RESET_COUNT_OFFSET 0
 /* ---- END CONFIGURATION SECTION ---- */
 
 /* ------------- INCLUDES ------------ */
 #define DIGITALIO_MANUAL // don't overwrite arduino digital* functions
+#include <EEPROM.h>
 #include "digitalIOPerformance.h"
 #include "TimerOne.h"
 /* ----------- END INCLUDES ---------- */
@@ -98,10 +102,17 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
 /* -------- MASTER ONLY SETUP -------- */
-  #if IS_MASTER
+#if IS_MASTER
+  // Increase the reset counter, overflow doesn't matter in this case
+  byte reset_count = EEPROM.read(EEPROM_RESET_COUNT_OFFSET);
+  EEPROM.write(EEPROM_RESET_COUNT_OFFSET, reset_count + 1);
+
+  // Only start the master on every second reset
+  if (reset_count % 2 == 0) {
     Timer1.initialize(MICRO_32);
     Timer1.attachInterrupt(send_tick);
-  #endif
+  }
+#endif
 /* ------ END MASTER ONLY SETUP ------ */
 }
 
